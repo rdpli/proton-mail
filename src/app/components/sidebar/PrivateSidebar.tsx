@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
 import {
     NavMenu,
     MainLogo,
@@ -19,30 +18,40 @@ import LocationAside from './LocationAside';
 import RefreshButton from './RefreshButton';
 import { LABEL_IDS_TO_HUMAN, ELEMENT_TYPES } from '../../constants';
 import { getCurrentType } from '../../helpers/elements';
+import { MessageExtended } from '../../models/message';
+import { LabelCount, Label } from '../../models/label';
 
-const PrivateSidebar = ({ expanded = false, labelID: currentLabelID }) => {
+type UnreadMap = { [labelID: string]: LabelCount };
+
+interface Props {
+    labelID: string;
+    onCompose: (message: MessageExtended) => void;
+    expanded?: boolean;
+}
+
+const PrivateSidebar = ({ expanded = false, labelID: currentLabelID, onCompose }: Props) => {
     const [conversationCounts, loadingConversationCounts] = useConversationCounts();
     const [messageCounts, loadingMessageCounts] = useMessageCounts();
     const [mailSettings, loadingMailSettings] = useMailSettings();
-    const [labels, loadingLabels] = useLabels();
+    const [labels, loadingLabels]: [Label[], (labels: Label[]) => void] = useLabels();
     const { ShowMoved } = mailSettings || {};
     const type = getCurrentType({ mailSettings, labelID: currentLabelID });
 
-    const unreadMap = useMemo(() => {
+    const unreadMap = useMemo<UnreadMap>(() => {
         const counters = type === ELEMENT_TYPES.CONVERSATION ? conversationCounts : messageCounts;
 
         if (!Array.isArray(counters)) {
             return {};
         }
 
-        return toMap(counters, 'LabelID');
+        return toMap(counters, 'LabelID') as UnreadMap;
     }, [conversationCounts, messageCounts]);
 
     if (loadingMailSettings || loadingLabels || loadingConversationCounts || loadingMessageCounts) {
         return <Loader />;
     }
 
-    const getAside = (labelID) => {
+    const getAside = (labelID = '') => {
         return (
             <LocationAside
                 unread={unreadMap[labelID].Unread}
@@ -130,18 +139,14 @@ const PrivateSidebar = ({ expanded = false, labelID: currentLabelID }) => {
                 <MainLogo url="/inbox" />
             </div>
             <div className="pl1 pr1 mb1">
-                <PrimaryButton className="w100 bold">{c('Action').t`Compose`}</PrimaryButton>
+                <PrimaryButton className="w100 bold" onClick={() => onCompose({ data: { ID: 'COUCOU' } })}>{c('Action')
+                    .t`Compose`}</PrimaryButton>
             </div>
             <nav className="navigation mw100 flex-item-fluid scroll-if-needed">
                 <NavMenu list={list} className="mt0" />
             </nav>
         </div>
     );
-};
-
-PrivateSidebar.propTypes = {
-    labelID: PropTypes.string.isRequired,
-    expanded: PropTypes.bool
 };
 
 export default PrivateSidebar;

@@ -18,14 +18,14 @@ import LocationAside from './LocationAside';
 import RefreshButton from './RefreshButton';
 import { LABEL_IDS_TO_HUMAN, ELEMENT_TYPES } from '../../constants';
 import { getCurrentType } from '../../helpers/elements';
-import { MessageExtended } from '../../models/message';
+import { Message } from '../../models/message';
 import { LabelCount, Label } from '../../models/label';
 
 type UnreadMap = { [labelID: string]: LabelCount };
 
 interface Props {
     labelID: string;
-    onCompose: (message: MessageExtended) => void;
+    onCompose: (message?: Message) => void;
     expanded?: boolean;
 }
 
@@ -139,7 +139,7 @@ const PrivateSidebar = ({ expanded = false, labelID: currentLabelID, onCompose }
                 <MainLogo url="/inbox" />
             </div>
             <div className="pl1 pr1 mb1">
-                <PrimaryButton className="w100 bold" onClick={() => onCompose({ data: { ID: 'COUCOU' } })}>{c('Action')
+                <PrimaryButton className="w100 bold" onClick={() => onCompose()}>{c('Action')
                     .t`Compose`}</PrimaryButton>
             </div>
             <nav className="navigation mw100 flex-item-fluid scroll-if-needed">

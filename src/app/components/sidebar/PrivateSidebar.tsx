@@ -16,16 +16,16 @@ import { c } from 'ttag';
 
 import LocationAside from './LocationAside';
 import RefreshButton from './RefreshButton';
-import { LABEL_IDS_TO_HUMAN, ELEMENT_TYPES } from '../../constants';
+import { LABEL_IDS_TO_HUMAN, ELEMENT_TYPES, MESSAGE_ACTIONS } from '../../constants';
 import { getCurrentType } from '../../helpers/elements';
-import { Message } from '../../models/message';
 import { LabelCount, Label } from '../../models/label';
+import { OnCompose } from '../../containers/ComposerContainer';
 
 type UnreadMap = { [labelID: string]: LabelCount };
 
 interface Props {
     labelID: string;
-    onCompose: (message?: Message) => void;
+    onCompose: OnCompose;
     expanded?: boolean;
 }
 
@@ -133,14 +133,17 @@ const PrivateSidebar = ({ expanded = false, labelID: currentLabelID, onCompose }
         }))
     ];
 
+    const handleCompose = () => {
+        onCompose({ action: MESSAGE_ACTIONS.NEW });
+    };
+
     return (
         <div className="sidebar flex flex-column noprint" data-expanded={expanded}>
             <div className="nodesktop notablet">
                 <MainLogo url="/inbox" />
             </div>
             <div className="pl1 pr1 mb1">
-                <PrimaryButton className="w100 bold" onClick={() => onCompose()}>{c('Action')
-                    .t`Compose`}</PrimaryButton>
+                <PrimaryButton className="w100 bold" onClick={handleCompose}>{c('Action').t`Compose`}</PrimaryButton>
             </div>
             <nav className="navigation mw100 flex-item-fluid scroll-if-needed">
                 <NavMenu list={list} className="mt0" />
